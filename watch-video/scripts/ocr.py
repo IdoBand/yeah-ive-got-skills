@@ -1,0 +1,58 @@
+"""Run pytesseract over each frame and dump to frames_ocr.txt."""
+from __future__ import annotations
+
+import os
+import shutil
+from pathlib import Path
+
+
+def _ensure_tesseract_on_path() -> None:
+    import pytesseract  # type: ignore
+
+    if shutil.which("tesseract") or shutil.which("tesseract.exe"):
+        return
+    # UB-Mannheim default install location
+    candidates = [
+        Path(os.environ.get("ProgramFiles", r"C:\Program Files")) / "Tesseract-OCR" / "tesseract.exe",
+        Path(os.environ.get("ProgramFiles(x86)", r"C:\Program Files (x86)")) / "Tesseract-OCR" / "tesseract.exe",
+        Path(os.environ.get("LOCALAPPDATA", "")) / "Programs" / "Tesseract-OCR" / "tesseract.exe",
+    ]
+    for c in candidates:
+        if c and c.exists():
+            pytesseract.pytesseract.tesseract_cmd = str(c)
+            return
+
+
+def _ts(seconds: float) -> str:
+    s = int(round(seconds))
+    return f"{s // 60:02d}:{s % 60:02d}"
+
+
+def run(frames: list[Path], duration_s: float, out_path: Path) -> int:
+    _ensure_tesseract_on_path()
+    import pytesseract  # type: ignore
+    from PIL import Image  # type: ignore
+
+    n = len(frames)
+    if n == 0:
+        out_path.write_text("", encoding="utf-8")
+        return 0
+
+    written = 0
+    with out_path.open("w", encoding="utf-8") as fh:
+        for i, frame in enumerate(frames):
+            t = (i / max(1, n - 1)) * duration_s if n > 1 else 0.0
+            try:
+                with Image.open(frame) as img:
+                    text = pytesseract.image_to_string(img)
+            except Exception as e:  # noqa: BLE001
+                text = f"<ocr-error: {e}>"
+            text = text.strip()
+            # Skip near-empty results (a stray punctuation char isn't useful).
+            if len(text) < 3:
+                continue
+            # Collapse to single line block, but keep newlines as " | " so it's grep-friendly.
+            flat = " | ".join(ln.strip() for ln in text.splitlines() if ln.strip())
+            fh.write(f"[t={_ts(t)}] [{frame.name}] {flat}\n")
+            written += 1
+    return written

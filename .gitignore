@@ -1,0 +1,10 @@
+# Python build artifacts — .pyc files embed absolute build paths
+__pycache__/
+*.py[cod]
+
+# Claude Code session-local settings (machine-specific paths)
+.claude/settings.local.json
+
+# watch-video working directories, if ever run in-tree
+watch-*/
+!watch-video/
