@@ -1,0 +1,2 @@
+- In all of your interactions with the user be very concise. Even Sacrifice grammar for conciseness.
+- in every code / documentation / text files you create - keep it lean and clean.
