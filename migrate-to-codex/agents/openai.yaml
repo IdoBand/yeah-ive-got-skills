@@ -1,0 +1,4 @@
+# Locally modified description; upstream OpenAI attribution is in SKILL.md.
+interface:
+  display_name: "Migrate to Codex"
+  short_description: "Migrate Claude projects with symlink and reference checks"
