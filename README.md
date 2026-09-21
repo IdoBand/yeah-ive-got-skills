@@ -23,3 +23,9 @@ Convert Claude Code projects to Codex, preserving shared instruction symlinks
 and auditing references across skills and supporting files.
 
 **Credits** — enhanced copy of OpenAI's [migrate-to-codex](https://github.com/openai/skills/tree/49f948faa9258a0c61caceaf225e179651397431/skills/.curated/migrate-to-codex), retaining its original name and [Apache 2.0 license](migrate-to-codex/LICENSE.txt). Local enhancements and pinned upstream version are documented in the skill.
+
+
+## [temp-dir](temp-dir/SKILL.md)
+
+Keep disposable working files in the Git project's root `temp/` directory,
+with a tracked `.gitignore` that excludes temporary contents.
