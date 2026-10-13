@@ -1,26 +1,18 @@
 """Run pytesseract over each frame and dump to frames_ocr.txt."""
 from __future__ import annotations
 
-import os
-import shutil
 from pathlib import Path
+
+from dependencies import find_binary
 
 
 def _ensure_tesseract_on_path() -> None:
     import pytesseract  # type: ignore
 
-    if shutil.which("tesseract") or shutil.which("tesseract.exe"):
-        return
-    # UB-Mannheim default install location
-    candidates = [
-        Path(os.environ.get("ProgramFiles", r"C:\Program Files")) / "Tesseract-OCR" / "tesseract.exe",
-        Path(os.environ.get("ProgramFiles(x86)", r"C:\Program Files (x86)")) / "Tesseract-OCR" / "tesseract.exe",
-        Path(os.environ.get("LOCALAPPDATA", "")) / "Programs" / "Tesseract-OCR" / "tesseract.exe",
-    ]
-    for c in candidates:
-        if c and c.exists():
-            pytesseract.pytesseract.tesseract_cmd = str(c)
-            return
+    executable = find_binary("tesseract")
+    if not executable:
+        raise RuntimeError("Tesseract not found on PATH or in standard installation folders")
+    pytesseract.pytesseract.tesseract_cmd = executable
 
 
 def _ts(seconds: float) -> str:
